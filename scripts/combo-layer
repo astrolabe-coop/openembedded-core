@@ -690,6 +690,16 @@ def action_update(conf, args):
                 filter.append('%s/%s' % (dest_dir, path) if dest_dir != '.' else path)
             for patch in patchlist[:]:
                 filtered = patch + '.tmp'
+
+                # filter diff can't cope with more than two headers on a patch by default
+                # (MAX_HEADERS = 5 in filterdiff source) so grep out deleted file mode
+                # headers since they're not needed (diff + deleted file mode + index 
+                # + +++ + ---- is 5 headers)
+                with open(filtered, 'w') as f:
+                    runcmd(['grep', '^deleted.file.mode', '-v', patch], out=f)
+                os.unlink(patch)
+                os.rename(filtered, patch)
+
                 with open(filtered, 'w') as f:
                     runcmd(filter + [patch], out=f)
                 # Now check for empty patches.
