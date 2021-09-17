@@ -15,6 +15,7 @@ DEPENDS = "libevdev udev mtdev libcheck"
 SRC_URI = "http://www.freedesktop.org/software/${BPN}/${BP}.tar.xz \
            file://run-ptest \
            file://determinism.patch \
+           file://90-usb-0eef-0001.rules \
            "
 SRC_URI[sha256sum] = "ff33a570b5a936c81e6c08389a8581c2665311d026ce3d225c88d09c49f9b440"
 
@@ -47,3 +48,8 @@ RREPLACES:${PN} = "libinput"
 RCONFLICTS:${PN} = "libinput"
 
 FILES:${PN}-ptest += "${libexecdir}/libinput/libinput-test-suite"
+
+do_install:append() {
+    install -d  "${D}/${sysconfdir}/udev/rules.d"
+    install -m444 "${WORKDIR}/90-usb-0eef-0001.rules" "${D}/${sysconfdir}/udev/rules.d/"
+}
